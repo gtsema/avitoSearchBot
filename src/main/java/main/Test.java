@@ -1,6 +1,6 @@
 package main;
 
-import avitoParser.Advert;
+import dbService.entitys.Advert;
 import avitoParser.Parser;
 
 import java.io.IOException;

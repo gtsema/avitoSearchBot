@@ -1,8 +1,8 @@
-package avitoParser;
+package dbService.entitys;
 
 import java.util.Objects;
 
-public class Advert {
+public class Advert implements Entity {
 
     private String path;
     private int id;
