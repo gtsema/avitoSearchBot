@@ -10,16 +10,14 @@ public class Advert {
     private String subway;
     private double distance;
     private double price;
-    private String description;
 
-    public Advert(String path, int id, String title, String subway, double distance, double price, String description) {
+    public Advert(String path, int id, String title, String subway, double distance, double price) {
         this.path = path;
         this.id = id;
         this.title = title;
         this.subway = subway;
         this.distance = distance;
         this.price = price;
-        this.description = description;
     }
 
     public String getPath() {
@@ -44,10 +42,6 @@ public class Advert {
 
     public double getPrice() {
         return price;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     @Override
