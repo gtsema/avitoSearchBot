@@ -2,7 +2,7 @@ package dbService;
 
 import Exceptions.PropertyException;
 import dbService.DAO.AdvertDAO;
-import dbService.entitys.Advert;
+import dbService.entities.Advert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.PropertyHelper;
@@ -10,7 +10,6 @@ import utils.PropertyHelper;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DBService {
@@ -64,14 +63,14 @@ public class DBService {
         }
     }
 
-    public void createInitialTable(ArrayList<Advert> AptAds) {
+    public void createInitialTable(List<Advert> adverts) {
 
         AdvertDAO advertDAO = new AdvertDAO(connection);
 
         try {
             connection.setAutoCommit(false);
-            advertDAO.dropTable();
             advertDAO.createTable();
+            advertDAO.clearTable();
         } catch (SQLException e) {
             try {
                 e.printStackTrace();
@@ -92,14 +91,13 @@ public class DBService {
         }
 
 
-        for(Advert ads : AptAds) {
-
+        for(Advert ads : adverts) {
             try {
                 connection.setAutoCommit(false);
                 advertDAO.insert(ads);
             } catch (SQLException e) {
                 try {
-                    logger.info("It found the repetition of a unique identifier.");
+                    logger.info(e.getSQLState());
                     connection.rollback();
                 } catch (SQLException fuck) {
                     logger.error("Database fatal error. Exit.");
@@ -137,7 +135,7 @@ public class DBService {
         }
     }
 
-    public List<Advert> getAptAds() {
+    public List<Advert> getAdverts() {
         try {
             AdvertDAO advertDAO = new AdvertDAO(connection);
             return advertDAO.getAll();

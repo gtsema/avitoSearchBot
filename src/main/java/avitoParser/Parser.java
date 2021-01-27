@@ -1,6 +1,6 @@
 package avitoParser;
 
-import dbService.entitys.Advert;
+import dbService.entities.Advert;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -63,6 +63,7 @@ public class Parser {
 
     private List<Advert> parsePage(String path) throws IOException {
         Document doc = getDoc(path);
+
         Elements advertsElements = doc.getElementsByAttributeValueStarting("class", "iva-item-root");
         return new ArrayList<>() {{
             advertsElements.forEach(advertElement -> {
@@ -130,7 +131,7 @@ public class Parser {
         }
     }
 
-    private double getAdvertDistance(Element advert) {
+    private int getAdvertDistance(Element advert) {
         double distance;
         try {
             distance = Double.parseDouble(advert.getElementsByAttributeValueStarting("class", "geo-georeferences")
@@ -146,9 +147,9 @@ public class Parser {
                                 .split(" ")[2];
 
             if(unit.equals("м")) {
-                return distance;
+                return (int) distance;
             } else if(unit.equals("км")) {
-                return distance * 1e3;
+                return (int) (distance * 1e3);
             } else throw new NumberFormatException();
 
         } catch (NumberFormatException e) {
@@ -157,7 +158,7 @@ public class Parser {
         }
     }
 
-    private double getAdvertPrice(Element advert) throws IllegalArgumentException {
+    private int getAdvertPrice(Element advert) throws IllegalArgumentException {
         try {
             return Integer.parseInt(advert.getElementsByAttributeValueStarting("class", "price-price")
                                           .select("meta")

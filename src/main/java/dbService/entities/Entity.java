@@ -1,4 +1,4 @@
-package dbService.entitys;
+package dbService.entities;
 
 public interface Entity {
 }

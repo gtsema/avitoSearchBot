@@ -1,4 +1,4 @@
-package dbService.entitys;
+package dbService.entities;
 
 import java.util.Objects;
 
@@ -8,10 +8,10 @@ public class Advert implements Entity {
     private int id;
     private String title;
     private String subway;
-    private double distance;
-    private double price;
+    private int distance;
+    private int price;
 
-    public Advert(String path, int id, String title, String subway, double distance, double price) {
+    public Advert(String path, int id, String title, String subway, int distance, int price) {
         this.path = path;
         this.id = id;
         this.title = title;
@@ -36,11 +36,11 @@ public class Advert implements Entity {
         return subway;
     }
 
-    public double getDistance() {
+    public int getDistance() {
         return distance;
     }
 
-    public double getPrice() {
+    public int getPrice() {
         return price;
     }
 
