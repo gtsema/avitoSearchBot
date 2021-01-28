@@ -19,7 +19,8 @@ public class AdvertDAO extends DAO<Advert> {
 
     @Override
     public void createTable() throws SQLException {
-        executor.execUpdate("CREATE TABLE IF NOT EXISTS Adverts(id BIGINT NOT NULL PRIMARY KEY," +
+        executor.execUpdate("CREATE TABLE IF NOT EXISTS Adverts(id INT NOT NULL AUTO_INCREMENT," +
+                                                               "id_adv INT NOT NULL PRIMARY KEY," +
                                                                "path VARCHAR(255) NOT NULL," +
                                                                "title VARCHAR(255) NOT NULL," +
                                                                "subway VARCHAR(255) NOT NULL," +
@@ -33,13 +34,8 @@ public class AdvertDAO extends DAO<Advert> {
     }
 
     @Override
-    public void clearTable() throws SQLException {
-        executor.execUpdate("delete from Adverts");
-    }
-
-    @Override
     public void insert(Advert entity) throws SQLException {
-        String query = "INSERT INTO Adverts(id, path, title, subway, distance, price) VALUES (%d, '%s', '%s', '%s', %d, %d)";
+        String query = "INSERT INTO Adverts(id_adv, path, title, subway, distance, price) VALUES (%d, '%s', '%s', '%s', %d, %d)";
         executor.execUpdate(String.format(Locale.ROOT, query, entity.getId(),
                                                               entity.getPath(),
                                                               entity.getTitle(),
@@ -54,7 +50,7 @@ public class AdvertDAO extends DAO<Advert> {
         return executor.execQuery(String.format(Locale.ROOT, query, id), result -> {
             result.next();
             return new Advert(result.getString("path"),
-                              result.getInt("id"),
+                              result.getInt("id_adv"),
                               result.getString("title"),
                               result.getString("subway"),
                               result.getInt("distance"),
@@ -69,7 +65,7 @@ public class AdvertDAO extends DAO<Advert> {
             List<Advert> adverts = new ArrayList<>();
             while (result.next()) {
                 adverts.add(new Advert(result.getString("path"),
-                                       result.getInt("id"),
+                                       result.getInt("id_adv"),
                                        result.getString("title"),
                                        result.getString("subway"),
                                        result.getInt("distance"),
@@ -77,5 +73,9 @@ public class AdvertDAO extends DAO<Advert> {
             }
             return adverts;
         });
+    }
+
+    public void clearTable() throws SQLException {
+        executor.execUpdate("delete from Adverts");
     }
 }

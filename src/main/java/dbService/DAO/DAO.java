@@ -11,8 +11,6 @@ public abstract class DAO<T extends Entity> {
 
     public abstract void dropTable() throws SQLException;
 
-    public abstract void clearTable() throws SQLException;
-
     public abstract void insert(T entity) throws SQLException;
 
     public abstract T getById(int id) throws SQLException;

@@ -1,15 +1,19 @@
 package dbService;
 
-import Exceptions.PropertyException;
+import exceptions.PropertyException;
 import dbService.DAO.AdvertDAO;
 import dbService.entities.Advert;
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.PropertyHelper;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class DBService {
@@ -63,57 +67,6 @@ public class DBService {
         }
     }
 
-    public void createInitialTable(List<Advert> adverts) {
-
-        AdvertDAO advertDAO = new AdvertDAO(connection);
-
-        try {
-            connection.setAutoCommit(false);
-            advertDAO.createTable();
-            advertDAO.clearTable();
-        } catch (SQLException e) {
-            try {
-                e.printStackTrace();
-                logger.error("Database error. Rollback and exit");
-                connection.rollback();
-                System.exit(-20);
-            } catch (SQLException fuck) {
-                logger.error("Database fatal error. Exit.");
-                System.exit(-20);
-            }
-        } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                logger.error("Database fatal error. Exit.");
-                System.exit(-20);
-            }
-        }
-
-
-        for(Advert ads : adverts) {
-            try {
-                connection.setAutoCommit(false);
-                advertDAO.insert(ads);
-            } catch (SQLException e) {
-                try {
-                    logger.info(e.getSQLState());
-                    connection.rollback();
-                } catch (SQLException fuck) {
-                    logger.error("Database fatal error. Exit.");
-                    System.exit(-20);
-                }
-            } finally {
-                try {
-                    connection.setAutoCommit(true);
-                } catch (SQLException e) {
-                    logger.error("Database fatal error. Exit.");
-                    System.exit(-20);
-                }
-            }
-        }
-    }
-
     public void dropTable() {
         try {
             connection.setAutoCommit(false);
@@ -153,5 +106,66 @@ public class DBService {
             logger.info("Error retrieving records from the database.");
         }
         return null;
+    }
+
+    public void createTable(List<Advert> adverts) {
+
+        AdvertDAO advertDAO = new AdvertDAO(connection);
+
+        try {
+            connection.setAutoCommit(false);
+            advertDAO.createTable();
+            advertDAO.clearTable();
+        } catch (SQLException e) {
+            try {
+                e.printStackTrace();
+                logger.error("Database error. Rollback and exit");
+                connection.rollback();
+                System.exit(e.getErrorCode());
+            } catch (SQLException fuck) {
+                logger.error("Database fatal error. Exit.");
+                System.exit(e.getErrorCode());
+            }
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                logger.error("Database fatal error. Exit.");
+                System.exit(e.getErrorCode());
+            }
+        }
+    }
+
+    public List<Advert> insertsAndGetAddedAdverts(List<Advert> adverts) {
+        AdvertDAO advertDAO = new AdvertDAO(connection);
+
+        List<Advert> successfulAdded = new LinkedList<>();
+
+        for(Advert advert : adverts) {
+            try {
+                advertDAO.insert(advert);
+                successfulAdded.add(advert);
+            } catch (JdbcSQLIntegrityConstraintViolationException e) {
+                logger.info(String.format("Advert from ID %d already exists in a database", advert.getId()));
+            } catch (SQLException e) {
+                logger.warn("Error adding to database. Rollback.");
+                try {
+                    connection.rollback();
+                } catch (SQLException fatal) {
+                    logger.error("Database fatal error. Exit.");
+                    logger.error(fatal.getMessage());
+                    System.exit(fatal.getErrorCode());
+                }
+            } finally {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException e) {
+                    logger.error("Database fatal error. Exit.");
+                    System.exit(e.getErrorCode());
+                }
+            }
+        }
+
+        return successfulAdded;
     }
 }
