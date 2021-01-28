@@ -2,8 +2,8 @@ package utils;
 
 import java.net.URL;
 
-public class URL_Checker {
-    public static boolean isURL(String url) {
+public class URLChecker {
+    public static boolean isValidURL(String url) {
         try {
             new URL(url);
             return true;

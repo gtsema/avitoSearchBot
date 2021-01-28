@@ -1,6 +1,6 @@
 package main;
 
-import Exceptions.PropertyException;
+import exceptions.PropertyException;
 import bot.Bot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;

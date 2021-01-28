@@ -18,7 +18,12 @@ public class Test {
         Parser parser = new Parser(path);
         List<Advert> adverts = parser.parse();
 
-        dbService.createInitialTable(adverts);
+        System.out.println(adverts.size());
+
+        dbService.createTable(adverts);
+        List<Advert> newAdverts = dbService.insertsAndGetAddedAdverts(adverts);
         dbService.closeConnection();
+
+        System.out.println(newAdverts.size());
     }
 }

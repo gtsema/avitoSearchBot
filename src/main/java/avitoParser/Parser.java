@@ -7,7 +7,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.URL_Checker;
+import utils.URLChecker;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class Parser {
     public List<Advert> parse() throws IOException {
         List<Advert> adverts = new LinkedList<>();
 
-        if(URL_Checker.isURL(path)) {
+        if(URLChecker.isValidURL(path)) {
             List<String> pages = getPages(path);
             for(String page : pages) {
                 adverts.addAll(parsePage(page));
@@ -82,7 +82,7 @@ public class Parser {
     }
 
     private Document getDoc(String path) throws IOException {
-        if(URL_Checker.isURL(path)) {
+        if(URLChecker.isValidURL(path)) {
             return Jsoup.connect(path).timeout(5000).get();
         } else {
             return Jsoup.parse(new File(path), "UTF-8");

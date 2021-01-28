@@ -1,4 +1,4 @@
-package Exceptions;
+package exceptions;
 
 public class PropertyException extends Exception {
     public PropertyException(String message) {

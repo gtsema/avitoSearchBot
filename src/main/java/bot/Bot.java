@@ -1,6 +1,6 @@
 package bot;
 
-import Exceptions.PropertyException;
+import exceptions.PropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import utils.Messages;
+import utils.PathChecker;
 import utils.PropertyHelper;
 
 
@@ -78,7 +79,8 @@ public class Bot extends TelegramLongPollingBot {
             switch (dialog) {
                 case HELLO:
                     userName = update.getMessage().getChat().getFirstName();
-                    sendMsg(userChatId, String.format(Messages.getMessage("Hello"), userName));
+                    sendMsg(userChatId, String.format(Messages.hello, userName));
+                    sendMsg(userChatId, Messages.reqPwd);
                     setDialogState(dialogState.PWD);
                     break;
                 case PWD:
@@ -99,31 +101,44 @@ public class Bot extends TelegramLongPollingBot {
             try {
                 if(PropertyHelper.getBotUsers().containsKey(name) &&
                    PropertyHelper.getBotUsers().get(name).equals(pass)) {
-                    sendMsg(userChatId, Messages.getMessage("PassOk"));
+                    sendMsg(userChatId, Messages.pwdOk);
+                    sendMsg(userChatId, Messages.reqPath);
                     setDialogState(dialogState.PATH);
                 } else {
-                    if(!checkTry()) setDialogState(dialogState.HELLO);
+                    if(!checkTry(dialog)) setDialogState(dialogState.HELLO);
                 }
             } catch (PropertyException e) {
                 logger.error(e.getMessage());
-                sendMsg(userChatId, Messages.getMessage("Error"));
+                sendMsg(userChatId, Messages.prgError);
                 setDialogState(dialogState.HELLO);
             }
     }
 
-    private boolean pathDialogHandler(String path) {
-        return true;
+    private void pathDialogHandler(String path) {
+        if(PathChecker.isValidPath(path)) {
+            sendMsg(userChatId, Messages.pathOk);
+            sendMsg(userChatId, Messages.reqTime);
+        } else {
+            if(!checkTry(dialog)) setDialogState(dialogState.HELLO);
+        }
     }
 
-    private boolean checkTry() {
+    private boolean checkTry(dialogState dialog) {
         if(--choiceCounter == 0) {
             choiceCounter = 3;
-            sendMsg(userChatId, Messages.getMessage("TotalFailure"));
+            sendMsg(userChatId, Messages.totalFailure);
             return false;
         } else {
-            sendMsg(userChatId, Messages.getMessage("Fail") +
-                                     Messages.getChoise(choiceCounter));
-
+            String message = "";
+            switch (dialog) {
+                case PWD:
+                    message = Messages.pwdError;
+                    break;
+                case PATH:
+                    message = Messages.pathError;
+                    break;
+            }
+            sendMsg(userChatId, message + Messages.getAttempt(choiceCounter));
             return true;
         }
     }
