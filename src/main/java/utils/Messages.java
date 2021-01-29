@@ -13,6 +13,7 @@ public class Messages {
     public final static String pathError = "Не могу найти объявления на этой старнице. Попробуйте ещё раз.";
     public final static String pathOk = "У Вас отлично получается!";
     public final static String reqTime = "Как часто искать новые объявления?";
+    public final static String notificationOk = "Время установлено.";
     public final static String ok = "Приступаю к работе!";
     public final static String totalFailure = "Попытки исчерпаны. До свидания.";
     public final static String prgError = "Произошла ошибка и дальнейшая работа невозможна. До свидания!";

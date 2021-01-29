@@ -7,10 +7,14 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import utils.Messages;
 import utils.PathChecker;
 import utils.PropertyHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Bot extends TelegramLongPollingBot {
@@ -21,9 +25,10 @@ public class Bot extends TelegramLongPollingBot {
     private final String BOT_TOKEN;
 
     int choiceCounter = 3;
-    private long userChatId = 0;
+    private String userChatId = "";
     private String userName = "";
     private String PATH = "";
+    private int notificationTime = 0;
 
     private enum dialogState {HELLO, PWD, PATH, NOTIFICATION, OK};
     private dialogState dialog = dialogState.HELLO;
@@ -43,7 +48,7 @@ public class Bot extends TelegramLongPollingBot {
         return BOT_TOKEN;
     }
 
-    private synchronized void sendMsg(Long chatId, String text) {
+    private synchronized void sendMsg(String chatId, String text) {
         SendMessage answer = new SendMessage();
         answer.setChatId(chatId.toString());
         answer.setText(text);
@@ -73,7 +78,7 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         String message = "";
-        if(userChatId == 0) userChatId = update.getMessage().getChatId();
+        if(userChatId.isEmpty()) userChatId = update.getMessage().getChatId().toString();
 
         if(update.hasMessage() && !(message = update.getMessage().getText()).isEmpty()) {
             switch (dialog) {
@@ -90,10 +95,17 @@ public class Bot extends TelegramLongPollingBot {
                     pathDialogHandler(message);
                     break;
                 case NOTIFICATION:
+                    sendMsgWithKeyboard(userChatId, Messages.reqTime, getNotificationButtons());
                     break;
                 case OK:
                     break;
             }
+        } else if(update.hasCallbackQuery()) {
+            notificationTime = Integer.parseInt(update.getCallbackQuery().getData());
+            sendMsg(userChatId, Messages.notificationOk);
+            sendMsg(userChatId, Messages.ok);
+            setDialogState(dialogState.OK);
+            startWork();
         }
     }
 
@@ -116,8 +128,10 @@ public class Bot extends TelegramLongPollingBot {
 
     private void pathDialogHandler(String path) {
         if(PathChecker.isValidPath(path)) {
+            PATH = path;
             sendMsg(userChatId, Messages.pathOk);
-            sendMsg(userChatId, Messages.reqTime);
+            sendMsgWithKeyboard(userChatId, Messages.reqTime, getNotificationButtons());
+            setDialogState(dialogState.NOTIFICATION);
         } else {
             if(!checkTry(dialog)) setDialogState(dialogState.HELLO);
         }
@@ -141,5 +155,23 @@ public class Bot extends TelegramLongPollingBot {
             sendMsg(userChatId, message + Messages.getAttempt(choiceCounter));
             return true;
         }
+    }
+
+    private InlineKeyboardMarkup getNotificationButtons() {
+        return InlineKeyboardMarkup.builder()
+                                   .keyboardRow(new ArrayList<InlineKeyboardButton>() {{
+                                                    add(InlineKeyboardButton.builder().text("1 минута").callbackData("1").build());
+                                                    add(InlineKeyboardButton.builder().text("5 минут").callbackData("5").build());
+                                                    add(InlineKeyboardButton.builder().text("15 минут").callbackData("15").build());}})
+                                   .keyboardRow(new ArrayList<InlineKeyboardButton>() {{
+                                                    add(InlineKeyboardButton.builder().text("30 минут").callbackData("30").build());
+                                                    add(InlineKeyboardButton.builder().text("1 час").callbackData("60").build());
+                                                    add(InlineKeyboardButton.builder().text("5 часов").callbackData("300").build());}})
+                                   .build();
+
+    }
+
+    private void startWork() {
+        System.out.println("start");
     }
 }
