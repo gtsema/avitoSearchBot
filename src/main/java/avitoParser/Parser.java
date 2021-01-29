@@ -30,19 +30,24 @@ public class Parser {
         this.path = path;
     }
 
-    public List<Advert> parse() throws IOException {
+    public List<Advert> parse() {
         List<Advert> adverts = new LinkedList<>();
 
-        if(URLChecker.isValidURL(path)) {
-            List<String> pages = getPages(path);
-            for(String page : pages) {
-                adverts.addAll(parsePage(page));
+        try {
+            if(URLChecker.isValidURL(path)) {
+                List<String> pages = getPages(path);
+                for(String page : pages) {
+                    adverts.addAll(parsePage(page));
+                }
+                return adverts;
+            } else {
+                return parsePage(path);
             }
-            return adverts;
-        } else {
-            return parsePage(path);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            System.exit(33);
         }
-
+        return null;
     }
 
     private List<String> getPages(String path) throws IOException {

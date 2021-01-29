@@ -108,7 +108,7 @@ public class DBService {
         return null;
     }
 
-    public void createTable(List<Advert> adverts) {
+    public void createAdvertsTable() {
 
         AdvertDAO advertDAO = new AdvertDAO(connection);
 

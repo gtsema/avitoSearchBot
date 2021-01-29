@@ -20,7 +20,7 @@ public class Test {
 
         System.out.println(adverts.size());
 
-        dbService.createTable(adverts);
+        dbService.createAdvertsTable();
         List<Advert> newAdverts = dbService.insertsAndGetAddedAdverts(adverts);
         dbService.closeConnection();
 

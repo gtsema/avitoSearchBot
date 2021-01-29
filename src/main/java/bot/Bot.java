@@ -1,5 +1,8 @@
 package bot;
 
+import avitoParser.Parser;
+import dbService.DBService;
+import dbService.entities.Advert;
 import exceptions.PropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +18,10 @@ import utils.PropertyHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 public class Bot extends TelegramLongPollingBot {
@@ -172,6 +179,31 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void startWork() {
-        System.out.println("start");
+        DBService dbService = new DBService();
+        dbService.createAdvertsTable();
+
+        Parser parser = new Parser(PATH);
+        List<Advert> adverts = parser.parse();
+
+        int newAdvertsSize = dbService.insertsAndGetAddedAdverts(adverts).size();
+        dbService.closeConnection();
+
+        sendMsg(userChatId, String.format("Добавлено %d объявлений", newAdvertsSize));
+
+        ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
+        exec.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                DBService dbService = new DBService();
+                Parser parser = new Parser(PATH);
+                List<Advert> adverts = parser.parse();
+                List<Advert> newAdverts = dbService.insertsAndGetAddedAdverts(adverts);
+                dbService.closeConnection();
+
+                for(Advert advert : newAdverts) {
+                    sendMsg(userChatId, advert.getPath());
+                }
+            }
+        }, 0, notificationTime, TimeUnit.MINUTES);
     }
 }
