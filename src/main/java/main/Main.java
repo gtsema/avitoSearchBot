@@ -1,7 +1,7 @@
 package main;
 
-import exceptions.PropertyException;
 import bot.Bot;
+import exceptions.PropertyException;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
