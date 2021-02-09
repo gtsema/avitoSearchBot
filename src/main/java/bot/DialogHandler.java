@@ -26,15 +26,6 @@ public class DialogHandler {
     int choiceCounter = 3;
 
     public void handleUpdate(AbsSender absSender, User user, Update update) {
-
-        int id = update.getMessage().getMessageId();
-
-        if(update.hasMessage()) {
-            delete(absSender, user.getChatId(), id);
-        } else {
-            delete(absSender, user.getChatId(), update.getCallbackQuery().getMessage().getMessageId());
-        }
-
         if(update.hasMessage() && !update.getMessage().getText().isEmpty()) {
             handleMessage(absSender, user, update.getMessage());
         } else if(update.hasCallbackQuery()) {
@@ -46,6 +37,9 @@ public class DialogHandler {
     }
 
     private void handleMessage(AbsSender absSender, User user, Message message) {
+
+        delete(absSender, message.getChatId(), message.getMessageId());
+
         switch (user.getDialogState()) {
             case HELLO:
                 user.setName(message.getFrom().getFirstName());
@@ -78,6 +72,9 @@ public class DialogHandler {
     }
 
     private void handleCallback(AbsSender absSender, User user, CallbackQuery callbackQuery) {
+
+        delete(absSender, callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId());
+
         switch (user.getDialogState()) {
             case HELLO:
                 if(callbackQuery.getData().equals("yes")) {
@@ -134,27 +131,29 @@ public class DialogHandler {
         }
     }
 
-    private void send(AbsSender absSender, long chatId, String text) {
+    private int send(AbsSender absSender, long chatId, String text) {
         SendMessage answer = new SendMessage();
         answer.setChatId(String.valueOf(chatId));
         answer.setText(text);
 
         try {
-            absSender.execute(answer);
+            return absSender.execute(answer).getMessageId();
         } catch (TelegramApiException e) {
             logger.error("Error interacting with Telegram api.");
         }
+        return 0;
     }
 
-    private void send(AbsSender absSender, long chatId, String text, InlineKeyboardMarkup keyboardMarkup) {
+    private int send(AbsSender absSender, long chatId, String text, InlineKeyboardMarkup keyboardMarkup) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(text);
         sendMessage.setReplyMarkup(keyboardMarkup);
         try {
-            absSender.execute(sendMessage);
+            return absSender.execute(sendMessage).getMessageId();
         } catch (TelegramApiException e) {
             logger.error("Error interacting with Telegram api.");
+            return 0;
         }
     }
 

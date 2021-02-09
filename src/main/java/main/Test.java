@@ -34,7 +34,7 @@ public class Test {
             String botToken = PropertyHelper.getBotToken();
 
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
-            api.registerBot(new testBot(botName, botToken));
+            api.registerBot(new Bot(botName, botToken));
         } catch (TelegramApiException | PropertyException e) {
             e.printStackTrace();
         }
