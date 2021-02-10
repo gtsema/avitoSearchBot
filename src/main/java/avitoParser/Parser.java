@@ -26,10 +26,6 @@ public class Parser {
         this.path = path;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
     public List<Advert> parse() {
         List<Advert> adverts = new LinkedList<>();
 
@@ -124,15 +120,20 @@ public class Parser {
 
     private String getAdvertSubway(Element advert) {
         String subway;
-        if((subway = advert.getElementsByAttributeValueStarting("class", "geo-georeferences")
-                           .select("span")
-                           .get(1)
-                           .text())
-                .isEmpty()) {
+        try {
+            if((subway = advert.getElementsByAttributeValueStarting("class", "geo-georeferences")
+                    .select("span")
+                    .get(1)
+                    .text())
+                    .isEmpty()) {
+                                    logger.warn("Entry does not contain \"subway\" field or it is empty.");
+                                    return "-";
+                                } else {
+                                    return subway;
+                                }
+        } catch (Exception e) {
             logger.warn("Entry does not contain \"subway\" field or it is empty.");
             return "-";
-        } else {
-            return subway;
         }
     }
 
@@ -159,6 +160,9 @@ public class Parser {
 
         } catch (NumberFormatException e) {
             logger.warn("Unable to convert \"distance\" field.");
+            return -1;
+        } catch (Exception e) {
+            logger.warn("Unable to found \"distance\" field.");
             return -1;
         }
     }

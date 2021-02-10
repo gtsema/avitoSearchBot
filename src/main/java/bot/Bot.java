@@ -25,7 +25,7 @@ public class Bot extends TelegramLongPollingBot {
         this.BOT_TOKEN = BOT_TOKEN;
 
         users = new HashSet<>();
-        dialogHandler = new DialogHandler();
+        dialogHandler = new DialogHandler(this);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class Bot extends TelegramLongPollingBot {
                                                         users.add(newUser);
                                                         return newUser; });
 
-        dialogHandler.handleUpdate(this, user, update);
+        dialogHandler.handleUpdate(user, update);
     }
 
     private long getChatId(Update update) {

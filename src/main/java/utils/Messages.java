@@ -21,6 +21,7 @@ public class Messages {
     public final static String whatToDo = "%s, что вы хотите сделать?";
     public final static String bye = "До свидания, %s!";
     public final static String stop = "Хотите всё это прекратить?";
+    public final static String addAdverts = "Добавлено %d объявлений!";
 
 
     private final static Map<Integer, String> attempt  = new HashMap<>() {{
