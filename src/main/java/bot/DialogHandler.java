@@ -17,13 +17,18 @@ import utils.Messages;
 import utils.PathChecker;
 import utils.PropertyHelper;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 public class DialogHandler {
     private static final Logger logger = LoggerFactory.getLogger(Bot.class);
 
-    int choiceCounter = 3;
+    int choiceCounter;
+    Set<Integer> botMessagesId;
+
+    public DialogHandler() {
+         botMessagesId = new TreeSet<>();
+         choiceCounter = 3;
+    }
 
     public void handleUpdate(AbsSender absSender, User user, Update update) {
         if(update.hasMessage() && !update.getMessage().getText().isEmpty()) {
@@ -39,6 +44,8 @@ public class DialogHandler {
     private void handleMessage(AbsSender absSender, User user, Message message) {
 
         delete(absSender, message.getChatId(), message.getMessageId());
+        botMessagesId.forEach(e -> delete(absSender, user.getChatId(), e));
+        botMessagesId.clear();
 
         switch (user.getDialogState()) {
             case HELLO:
@@ -73,7 +80,8 @@ public class DialogHandler {
 
     private void handleCallback(AbsSender absSender, User user, CallbackQuery callbackQuery) {
 
-        delete(absSender, callbackQuery.getMessage().getChatId(), callbackQuery.getMessage().getMessageId());
+        botMessagesId.forEach(e -> delete(absSender, user.getChatId(), e));
+        botMessagesId.clear();
 
         switch (user.getDialogState()) {
             case HELLO:
@@ -131,29 +139,30 @@ public class DialogHandler {
         }
     }
 
-    private int send(AbsSender absSender, long chatId, String text) {
+    private void send(AbsSender absSender, long chatId, String text) {
         SendMessage answer = new SendMessage();
         answer.setChatId(String.valueOf(chatId));
         answer.setText(text);
 
         try {
-            return absSender.execute(answer).getMessageId();
+            int id = absSender.execute(answer).getMessageId();
+            botMessagesId.add(id);
         } catch (TelegramApiException e) {
             logger.error("Error interacting with Telegram api.");
         }
-        return 0;
     }
 
-    private int send(AbsSender absSender, long chatId, String text, InlineKeyboardMarkup keyboardMarkup) {
+    private void send(AbsSender absSender, long chatId, String text, InlineKeyboardMarkup keyboardMarkup) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(text);
         sendMessage.setReplyMarkup(keyboardMarkup);
+
         try {
-            return absSender.execute(sendMessage).getMessageId();
+            int id = absSender.execute(sendMessage).getMessageId();
+            botMessagesId.add(id);
         } catch (TelegramApiException e) {
             logger.error("Error interacting with Telegram api.");
-            return 0;
         }
     }
 
