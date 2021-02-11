@@ -1,25 +1,21 @@
 package main;
 
-import bot.Bot;
-import exceptions.PropertyException;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import utils.PropertyHelper;
+import avitoParser.Parser;
 
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class Test {
 
-    public static void main(String[] args) throws IOException {
-        try {
-            String botName = PropertyHelper.getBotName();
-            String botToken = PropertyHelper.getBotToken();
+    public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-            TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
-            api.registerBot(new Bot(botName, botToken));
-        } catch (TelegramApiException | PropertyException e) {
-            e.printStackTrace();
-        }
+        String localPage = "src/test/resources/avito292Adverts.htm";
+
+        Method method = Parser.class.getDeclaredMethod("getPages", String.class);
+        method.setAccessible(true);
+        Object r = method.invoke(new Parser(localPage), localPage);
+        System.out.println(((List<String>) r).size());
+
     }
 }
