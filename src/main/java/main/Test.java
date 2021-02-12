@@ -1,21 +1,24 @@
 package main;
 
-import avitoParser.Parser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import utils.URLChecker;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
 
 public class Test {
+    public static void main(String[] args) throws IOException {
+        String path = "C:/Windows/explorer.exe";
+        Document doc = getDoc(path);
+        System.out.println(doc.body().val());
+    }
 
-    public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-        String localPage = "src/test/resources/avito292Adverts.htm";
-
-        Method method = Parser.class.getDeclaredMethod("getPages", String.class);
-        method.setAccessible(true);
-        Object r = method.invoke(new Parser(localPage), localPage);
-        System.out.println(((List<String>) r).size());
-
+    public static Document getDoc(String path) throws IOException {
+        if(URLChecker.isValidURL(path)) {
+            return Jsoup.connect(path).timeout(5000).get();
+        } else {
+            return Jsoup.parse(new File(path), "UTF-8");
+        }
     }
 }
