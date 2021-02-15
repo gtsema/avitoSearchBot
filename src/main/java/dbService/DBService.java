@@ -12,9 +12,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class DBService {
 
@@ -136,10 +134,10 @@ public class DBService {
         }
     }
 
-    public List<Advert> insertsAndGetAddedAdverts(List<Advert> adverts) {
+    public Set<Advert> insertsAndGetAddedAdverts(Set<Advert> adverts) {
         AdvertDAO advertDAO = new AdvertDAO(connection);
 
-        List<Advert> successfulAdded = new LinkedList<>();
+        Set<Advert> successfulAdded = new HashSet<>();
 
         for(Advert advert : adverts) {
             try {

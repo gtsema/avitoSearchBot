@@ -4,6 +4,7 @@ import avitoParser.Parser;
 import dbService.DBService;
 import dbService.entities.Advert;
 import dbService.entities.User;
+import exceptions.ParserException;
 import exceptions.PropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -288,8 +289,13 @@ public class DialogHandler {
         DBService dbService = new DBService();
         dbService.createAdvertsTable();
 
-        Parser parser = new Parser(user.getPath());
-        List<Advert> adverts = parser.parse();
+        Parser parser = new Parser();
+        Set<Advert> adverts = null;
+        try {
+            adverts = parser.parse(user.getPath());
+        } catch (ParserException e) {
+            e.printStackTrace();
+        }
 
         int newAdvertsSize = dbService.insertsAndGetAddedAdverts(adverts).size();
         send(user.getChatId(), String.format(Messages.addAdverts, newAdvertsSize));
@@ -302,9 +308,14 @@ public class DialogHandler {
             @Override
             public void run() {
                 DBService dbService = new DBService();
-                Parser parser = new Parser(user.getPath());
-                List<Advert> adverts = parser.parse();
-                List<Advert> newAdverts = dbService.insertsAndGetAddedAdverts(adverts);
+                Parser parser = new Parser();
+                Set<Advert> adverts = null;
+                try {
+                    adverts = parser.parse(user.getPath());
+                } catch (ParserException e) {
+                    e.printStackTrace();
+                }
+                Set<Advert> newAdverts = dbService.insertsAndGetAddedAdverts(adverts);
                 dbService.closeConnection();
 
                 for(Advert advert : newAdverts) {

@@ -1,6 +1,7 @@
 package avitoParser;
 
 import dbService.entities.Advert;
+import exceptions.ParserException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,27 +12,20 @@ import utils.URLChecker;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Parser {
 
     private static final Logger logger = LoggerFactory.getLogger(Parser.class);
 
     private String globalPath = "http://www.avito.ru";
-    private String path;
 
-    public Parser(String path) {
-        this.path = path;
-    }
-
-    public List<Advert> parse() {
-        List<Advert> adverts = new LinkedList<>();
+    public Set<Advert> parse(String path) throws ParserException {
+        Set<Advert> adverts = new HashSet<>();
 
         try {
             if(URLChecker.isValidURL(path)) {
-                List<String> pages = getPages(path);
+                Set<String> pages = getPages(path);
                 for(String page : pages) {
                     adverts.addAll(parsePage(page));
                 }
@@ -39,46 +33,53 @@ public class Parser {
             } else {
                 return parsePage(path);
             }
-        } catch (IOException e) {
+        } catch (Exception e) { // <---------------------------------
             logger.error(e.getMessage());
-            System.exit(33);
+            throw new ParserException(e.getCause());
         }
-        return null;
     }
 
-    private List<String> getPages(String path) throws IOException {
-        Document doc = getDoc(path);
+    private Set<String> getPages(String path) throws IOException {
+        Set<String> result = new HashSet<>();
 
+        Document doc = getDoc(path);
         Element pagination = doc.getElementsByAttributeValue("class", "pagination-pages clearfix").last();
 
-
-        Elements pages = pagination.getElementsByAttribute("href");
-        List<String> result = new LinkedList<>();
-        for(Element page : pages) {
-            if(page.text().matches("[0-9]")) {
-                result.add("http://www.avito.ru" + page.attr("href"));
+        if(pagination == null) {
+            logger.info("Only one page found.");
+            result.add(path);
+        } else {
+            Elements pages = pagination.getElementsByAttribute("href");
+            for(Element page : pages) {
+                if(page.text().matches("[0-9]")) {
+                    result.add("http://www.avito.ru" + page.attr("href"));
+                }
             }
         }
         return result;
     }
 
-    private List<Advert> parsePage(String path) throws IOException {
+    private Set<Advert> parsePage(String path) throws IOException {
         Document doc = getDoc(path);
-
         Elements advertsElements = doc.getElementsByAttributeValueStarting("class", "iva-item-root");
-        return new ArrayList<>() {{
-            advertsElements.forEach(advertElement -> {
+
+        if(advertsElements.size() == 0) throw new IOException("Adverts not found!");
+
+        return new HashSet<>() {{
+            for(Element advertElement : advertsElements) {
                 try {
-                    add(new Advert(getAdvertPath(advertElement),
-                                   getAdvertId(advertElement),
-                                   getAdvertTitle(advertElement),
-                                   getAdvertSubway(advertElement),
-                                   getAdvertDistance(advertElement),
-                                   getAdvertPrice(advertElement)));
+                   Advert newAdvert = new Advert(getAdvertPath(advertElement),
+                                                 getAdvertId(advertElement),
+                                                 getAdvertTitle(advertElement),
+                                                 getAdvertSubway(advertElement),
+                                                 getAdvertDistance(advertElement),
+                                                 getAdvertPrice(advertElement));
+
+                    if(!add(newAdvert)) logger.info(String.format("Announcement with ID: %d already exist", newAdvert.getId()));
                 } catch (IllegalArgumentException e) {
-                    logger.error(e.getMessage());
+                    logger.warn("Unable to get ID or PATH adverts. " + e.getMessage());
                 }
-            });
+            }
         }};
     }
 
@@ -90,11 +91,14 @@ public class Parser {
         }
     }
 
+
+
+
     private String getAdvertPath(Element advert) throws IllegalArgumentException {
         String path;
         if((path = advert.getElementsByAttributeValueStarting("class", "link-link")
                          .attr("href"))
-                .isEmpty()) {
+                         .isEmpty()) {
             throw new IllegalArgumentException("Entry does not contain \"href\" field and will be skipped.");
         } else {
             return globalPath + path;
