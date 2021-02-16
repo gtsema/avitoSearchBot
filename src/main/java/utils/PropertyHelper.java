@@ -25,8 +25,8 @@ public class PropertyHelper {
             String users = getProperty("botUsers");
             if(users.isEmpty()) throw new IllegalArgumentException();
             else {
-                return Stream.of(users.split(",")).collect(Collectors.toMap(x -> x.split(":")[0],
-                        x -> x.split(":")[1]));
+                return Stream.of(users.split(","))
+                                      .collect(Collectors.toMap(x -> x.split(":")[0], x -> x.split(":")[1]));
             }
         } catch (IOException e) {
             throw new PropertyException("Can not read the properties file.");

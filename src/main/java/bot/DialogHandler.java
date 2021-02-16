@@ -8,6 +8,7 @@ import exceptions.ParserException;
 import exceptions.PropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -21,22 +22,22 @@ import utils.Messages;
 import utils.PathChecker;
 import utils.PropertyHelper;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class DialogHandler {
-    private static final Logger logger = LoggerFactory.getLogger(Bot.class);
+    private static final Logger logger = LoggerFactory.getLogger(DialogHandler.class);
 
-    private final AbsSender absSender;
+    private AbsSender absSender;
     private int choiceCounter;
     private final Set<Integer> botMessagesId;
 
-    public DialogHandler(AbsSender absSender) {
-        this.absSender = absSender;
-
-        botMessagesId = new TreeSet<>();
+    public DialogHandler() {
         choiceCounter = 3;
+        botMessagesId = new TreeSet<>();
+        absSender = null;
     }
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -47,8 +48,7 @@ public class DialogHandler {
         } else if(update.hasCallbackQuery()) {
             handleCallback(user, update.getCallbackQuery());
         } else {
-            logger.warn("sssadfqwdfefsd");
-            send(user.getChatId(), Messages.prgError);
+            logger.warn("Unable to identify message type");
         }
     }
 
@@ -91,7 +91,7 @@ public class DialogHandler {
 
     private void handleCallback(User user, CallbackQuery callbackQuery) {
 
-        botMessagesId.forEach(e -> delete(user.getChatId(), e));
+        botMessagesId.forEach(msg -> delete(user.getChatId(), msg));
         botMessagesId.clear();
 
         switch (user.getDialogState()) {

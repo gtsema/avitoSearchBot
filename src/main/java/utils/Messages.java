@@ -8,7 +8,7 @@ public class Messages {
     public final static String hello = "Здравствуйте, %s! Могу ли я к Вам так обращаться?";
     public final static String reqName = "Тогда введите своё имя:";
     public final static String reqPwd = "%s, введите свой пароль:";
-    public final static String pwdOk = "Пароль верный!";
+    public final static String pwdOk = "Пароль верный! ";
     public final static String pwdError = "Пароль не подходит. Попробуйте ещё раз.";
     public final static String reqPath = "Теперь введите строку поиска:";
     public final static String pathError = "Не могу найти объявления на этой старнице. Попробуйте ещё раз.";

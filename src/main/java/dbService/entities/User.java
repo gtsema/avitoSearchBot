@@ -12,10 +12,19 @@ public class User {
     private int notificationTime;
     private Date timeOfLastVisits;
     private dialogStates dialogState;
+    private int choiceCounter = 3;
 
     public User(long chatId) {
         this.chatId = chatId;
         dialogState = dialogStates.HELLO;
+    }
+
+    public int getCounter() {
+        return choiceCounter != 0 ? --choiceCounter : (choiceCounter = 2);
+    }
+
+    public void resetCounter() {
+        choiceCounter = 3;
     }
 
     public void setName(String name) {
