@@ -91,9 +91,6 @@ public class Parser {
         }
     }
 
-
-
-
     private String getAdvertPath(Element advert) throws IllegalArgumentException {
         String path;
         if((path = advert.getElementsByAttributeValueStarting("class", "link-link")
@@ -107,7 +104,10 @@ public class Parser {
 
     private int getAdvertId(Element advert) throws IllegalArgumentException {
         try {
-            return Integer.parseInt(advert.attr("data-item-id"));
+            String id = advert.getElementsByAttributeValueStarting("class", "iva-item-root")
+                              .attr("data-item-id");
+
+            return Integer.parseInt(id);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Entry does not contain \"id\" field and will be skipped.");
         }
@@ -116,28 +116,20 @@ public class Parser {
     private String getAdvertTitle(Element advert) throws IllegalArgumentException {
         String title;
         if((title = advert.getElementsByAttributeValueStarting("class", "title-root").text()).isEmpty()) {
-            throw new IllegalArgumentException("Entry does not contain \"title\" field and will be skipped.");
+            return "noTitle";
         } else {
             return title;
         }
     }
 
     private String getAdvertSubway(Element advert) {
-        String subway;
         try {
-            if((subway = advert.getElementsByAttributeValueStarting("class", "geo-georeferences")
-                    .select("span")
-                    .get(1)
-                    .text())
-                    .isEmpty()) {
-                                    logger.warn("Entry does not contain \"subway\" field or it is empty.");
-                                    return "-";
-                                } else {
-                                    return subway;
-                                }
-        } catch (Exception e) {
-            logger.warn("Entry does not contain \"subway\" field or it is empty.");
-            return "-";
+            return advert.getElementsByAttributeValueStarting("class", "geo-georeferences")
+                         .select("span")
+                         .get(1)
+                         .text();
+        } catch (IndexOutOfBoundsException e) {
+            return "noSubway";
         }
     }
 
@@ -148,7 +140,8 @@ public class Parser {
                                                 .select("span")
                                                 .get(2)
                                                 .text()
-                                                .split(" ")[1].replace(",", "."));
+                                                .split(" ")[1]
+                                                .replace(",", "."));
 
             String unit = advert.getElementsByAttributeValueStarting("class", "geo-georeferences")
                                 .select("span")
@@ -160,13 +153,11 @@ public class Parser {
                 return (int) distance;
             } else if(unit.equals("км")) {
                 return (int) (distance * 1e3);
-            } else throw new NumberFormatException();
-
-        } catch (NumberFormatException e) {
-            logger.warn("Unable to convert \"distance\" field.");
-            return -1;
+            } else {
+                throw new NumberFormatException();
+            }
         } catch (Exception e) {
-            logger.warn("Unable to found \"distance\" field.");
+            logger.info("Unable to found \"distance\" field.");
             return -1;
         }
     }
@@ -177,9 +168,9 @@ public class Parser {
                                           .select("meta")
                                           .get(1)
                                           .attr("content"));
-        } catch (NumberFormatException e) {
-            logger.warn("Entry does not contain \"price\" field or it is empty.");
-            return 0;
+        } catch (Exception e) {
+            logger.info("Entry does not contain \"price\" field or it is empty.");
+            return -1;
         }
     }
 }
