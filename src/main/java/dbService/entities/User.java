@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class User {
 
+    private int tryCounter = 3;
     private long chatId;
     private String name;
     private String path;
@@ -49,6 +50,14 @@ public class User {
 
     public Date getTimeOfLastVisits() {
         return timeOfLastVisits;
+    }
+
+    public int getTryCounter() {
+        return (tryCounter != 0) ? --tryCounter : (tryCounter = 3);
+    }
+
+    public void resetTryCounter() {
+        tryCounter = 3;
     }
 
     @Override

@@ -5,8 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import states.HelloState;
-import states.State;
+import bot.states.HelloState;
+import bot.states.State;
 
 public class Bot extends TelegramLongPollingBot {
 

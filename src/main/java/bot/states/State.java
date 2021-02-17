@@ -1,4 +1,4 @@
-package states;
+package bot.states;
 
 import bot.Bot;
 import dbService.entities.User;
@@ -36,16 +36,17 @@ public abstract class State {
         }
     }
 
-    public void sendMessage(long chatId, String text) {
+
+    public void sendMessage(String text) {
         SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
+        message.setChatId(String.valueOf(user.getChatId()));
         message.setText(text);
         executeApiMethod(message);
     }
 
-    public void sendMessage(long chatId, String text, InlineKeyboardMarkup keyboard) {
+    public void sendMessage(String text, InlineKeyboardMarkup keyboard) {
         SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(chatId));
+        message.setChatId(String.valueOf(user.getChatId()));
         message.setText(text);
         message.setReplyMarkup(keyboard);
         executeApiMethod(message);
@@ -58,7 +59,6 @@ public abstract class State {
             e.printStackTrace();
         }
     }
-
 
 
     InlineKeyboardMarkup getYesNoButtons() {
