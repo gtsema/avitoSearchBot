@@ -5,9 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import java.util.HashSet;
-import java.util.Set;
+import states.HelloState;
+import states.State;
 
 public class Bot extends TelegramLongPollingBot {
 
@@ -16,16 +15,15 @@ public class Bot extends TelegramLongPollingBot {
     private final String BOT_NAME;
     private final String BOT_TOKEN;
 
-    Set<User> users;
-    DialogHandler dialogHandler;
+    private State state;
+    private User user;
 
     public Bot(String BOT_NAME, String BOT_TOKEN) {
         super();
         this.BOT_NAME = BOT_NAME;
         this.BOT_TOKEN = BOT_TOKEN;
 
-        users = new HashSet<>();
-        dialogHandler = new DialogHandler(this);
+        this.state = new HelloState(this);
     }
 
     @Override
@@ -40,14 +38,26 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        long chatId = getChatId(update);
-        User user = users.stream()
-                         .filter(usr -> usr.getChatId() == chatId)
-                         .findFirst().orElseGet(() -> { User newUser = new User(chatId);
-                                                        users.add(newUser);
-                                                        return newUser; });
+        long actualChatId = getChatId(update);
+        if(user == null) user = new User(actualChatId);
 
-        dialogHandler.handleUpdate(user, update);
+        if(user.getChatId() == actualChatId) {
+            state.handleUpdate(update);
+        } else {
+            throw new IllegalArgumentException("тара-та-тат-а-о");
+        }
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     private long getChatId(Update update) {
@@ -56,8 +66,9 @@ public class Bot extends TelegramLongPollingBot {
         } else if(update.hasCallbackQuery()) {
             return update.getCallbackQuery().getMessage().getChatId();
         } else {
-            logger.error("chatId not found");
-            throw new IllegalArgumentException("chatId not found");
+            String error = "Invalid update type.";
+            logger.error(error);
+            throw new IllegalArgumentException(error);
         }
     }
 }

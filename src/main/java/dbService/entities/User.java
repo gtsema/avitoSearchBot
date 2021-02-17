@@ -4,18 +4,15 @@ import java.util.Date;
 import java.util.Objects;
 
 public class User {
-    public enum dialogStates {HELLO, NAME, PWD, PATH, NOTIFICATION, READY, WORK, CHANGE};
 
     private long chatId;
     private String name;
     private String path;
     private int notificationTime;
     private Date timeOfLastVisits;
-    private dialogStates dialogState;
 
     public User(long chatId) {
         this.chatId = chatId;
-        dialogState = dialogStates.HELLO;
     }
 
     public void setName(String name) {
@@ -32,10 +29,6 @@ public class User {
 
     public void setTimeOfLastVisits(Date timeOfLastVisits) {
         this.timeOfLastVisits = timeOfLastVisits;
-    }
-
-    public void setDialogState(dialogStates dialogState) {
-        this.dialogState = dialogState;
     }
 
     public long getChatId() {
@@ -56,10 +49,6 @@ public class User {
 
     public Date getTimeOfLastVisits() {
         return timeOfLastVisits;
-    }
-
-    public dialogStates getDialogState() {
-        return dialogState;
     }
 
     @Override
