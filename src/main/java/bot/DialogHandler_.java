@@ -200,7 +200,5 @@ public class DialogHandler_ {
             return false;
         }
     }
-
-
 }
 

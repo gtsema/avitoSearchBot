@@ -20,15 +20,13 @@ public class Bot extends TelegramLongPollingBot {
     private final String BOT_NAME;
     private final String BOT_TOKEN;
 
-    Set<User> users;
+    User user;
     DialogHandler_ dialogHandler;
 
     public Bot(String BOT_NAME, String BOT_TOKEN) {
         super();
         this.BOT_NAME = BOT_NAME;
         this.BOT_TOKEN = BOT_TOKEN;
-
-        users = new HashSet<>();
         dialogHandler = new DialogHandler_();
     }
 
@@ -53,7 +51,7 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public void executeApiMethod(BotApiMethod<? extends Serializable> method) {
+    private void executeApiMethod(BotApiMethod<? extends Serializable> method) {
         try {
             execute(method);
         } catch (TelegramApiException e) {
@@ -62,10 +60,7 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private User getUser(long chatId) {
-        return users.stream().filter(usr -> usr.getChatId() == chatId)
-                             .findFirst().orElseGet(() -> { User newUser = new User(chatId);
-                                                            users.add(newUser);
-                                                            return newUser; });
+        return user == null ? new User(chatId) : user;
     }
 
     private long getChatId(Update update) throws IllegalArgumentException {
