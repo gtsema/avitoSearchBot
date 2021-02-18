@@ -18,7 +18,7 @@ public class PathState extends State {
 
     @Override
     public void handleMessage(Message message) {
-        int tryCounter = user.getTryCounter();
+        int tryCounter = bot.getUser().getTryCounter();
 
         if(tryCounter == 0) {
             sendMessage(Messages.totalFailure);
@@ -26,7 +26,7 @@ public class PathState extends State {
         } else if(!PathChecker.isValidPath(message.getText())) {
             sendMessage(Messages.pathError + Messages.getAttempt(tryCounter));
         } else {
-            user.resetTryCounter();
+            bot.getUser().resetTryCounter();
             sendMessage(Messages.pathOk);
             sendMessage(Messages.reqTime, getNotificationButtons());
             bot.setState(new NotificationState(bot));

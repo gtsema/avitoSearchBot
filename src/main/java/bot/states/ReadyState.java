@@ -21,7 +21,7 @@ public class ReadyState extends State {
             System.out.println("start work");
             bot.setState(new WorkState(bot));
         } else {
-            sendMessage(String.format(Messages.whatToDo, user.getName()), getChangeButtons());
+            sendMessage(String.format(Messages.whatToDo, bot.getUser().getName()), getChangeButtons());
             bot.setState(new ChangeState(bot));
         }
     }

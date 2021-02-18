@@ -39,7 +39,9 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         long actualChatId = getChatId(update);
-        if(user == null) user = new User(actualChatId);
+        if(user == null) {
+            user = new User(actualChatId);
+        }
 
         if(user.getChatId() == actualChatId) {
             state.handleUpdate(update);

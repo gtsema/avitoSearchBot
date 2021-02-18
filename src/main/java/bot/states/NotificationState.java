@@ -17,7 +17,7 @@ public class NotificationState extends State {
 
     @Override
     public void handleCallback(CallbackQuery callback) {
-        user.setNotificationTime(Integer.parseInt(callback.getData()));
+        bot.getUser().setNotificationTime(Integer.parseInt(callback.getData()));
         sendMessage(Messages.ok, getYesNoButtons());
         bot.setState(new ReadyState(bot));
     }

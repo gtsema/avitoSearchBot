@@ -3,8 +3,10 @@ package bot.states;
 import bot.Bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 import utils.Messages;
 
 public class HelloState extends State {
@@ -17,14 +19,14 @@ public class HelloState extends State {
 
     @Override
     public void handleMessage(Message message) {
-        user.setName(message.getFrom().getFirstName());
-        sendMessage(String.format(Messages.hello, user.getName()), getYesNoButtons());
+        bot.getUser().setName(message.getFrom().getFirstName());
+        sendMessage(String.format(Messages.hello, bot.getUser().getName()), getYesNoButtons());
     }
 
     @Override
     public void handleCallback(CallbackQuery callback) {
         if(callback.getData().equals("yes")) {
-            sendMessage(String.format(Messages.reqPwd, user.getName()));
+            sendMessage(String.format(Messages.reqPwd, bot.getUser().getName()));
             bot.setState(new PasswordState(bot));
         } else {
             sendMessage(Messages.reqName);

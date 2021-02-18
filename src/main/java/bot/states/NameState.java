@@ -17,8 +17,8 @@ public class NameState extends State {
 
     @Override
     public void handleMessage(Message message) {
-        user.setName(message.getFrom().getFirstName());
-        sendMessage(String.format(Messages.reqPwd, user.getName()));
+        bot.getUser().setName(message.getText());
+        sendMessage(String.format(Messages.reqPwd, bot.getUser().getName()));
         bot.setState(new PasswordState(bot));
     }
 

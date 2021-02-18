@@ -24,7 +24,7 @@ public class PathChecker {
                 doc = Jsoup.parse(new File(path), "UTF-8");
             }
         } catch (IOException e) {
-            logger.error("Impossible to check the correct path");
+            logger.info("Incorrect path");
             return false;
         }
 

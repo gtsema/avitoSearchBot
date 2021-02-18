@@ -21,7 +21,7 @@ public class ChangeState extends State {
             sendMessage(Messages.reqPath);
             bot.setState(new PathState(bot));
         } else {
-            sendMessage(String.format(Messages.bye, user.getName()));
+            sendMessage(String.format(Messages.bye, bot.getUser().getName()));
             bot.setState(new HelloState(bot));
         }
     }

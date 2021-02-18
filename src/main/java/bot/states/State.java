@@ -1,9 +1,10 @@
 package bot.states;
 
 import bot.Bot;
-import dbService.entities.User;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -17,11 +18,9 @@ import java.util.ArrayList;
 public abstract class State {
 
     Bot bot;
-    User user;
 
     public State(Bot bot) {
         this.bot = bot;
-        user = bot.getUser();
     }
 
     public abstract void handleMessage(Message message);
@@ -32,6 +31,7 @@ public abstract class State {
         if(update.hasMessage() && !update.getMessage().getText().isEmpty()) {
             handleMessage(update.getMessage());
         } else if(update.hasCallbackQuery()) {
+            deleteMarkup(update.getCallbackQuery().getMessage().getMessageId());
             handleCallback(update.getCallbackQuery());
         }
     }
@@ -39,17 +39,31 @@ public abstract class State {
 
     public void sendMessage(String text) {
         SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(user.getChatId()));
+        message.setChatId(String.valueOf(bot.getUser().getChatId()));
         message.setText(text);
         executeApiMethod(message);
     }
 
     public void sendMessage(String text, InlineKeyboardMarkup keyboard) {
         SendMessage message = new SendMessage();
-        message.setChatId(String.valueOf(user.getChatId()));
+        message.setChatId(String.valueOf(bot.getUser().getChatId()));
         message.setText(text);
         message.setReplyMarkup(keyboard);
         executeApiMethod(message);
+    }
+
+    public void deleteMessage(int messageId) {
+        DeleteMessage message = new DeleteMessage();
+        message.setChatId(String.valueOf(bot.getUser().getChatId()));
+        message.setMessageId(messageId);
+        executeApiMethod(message);
+    }
+
+    public void deleteMarkup(int messageId) {
+        EditMessageReplyMarkup markup = new EditMessageReplyMarkup();
+        markup.setChatId(String.valueOf(bot.getUser().getChatId()));
+        markup.setMessageId(messageId);
+        executeApiMethod(markup);
     }
 
     private void executeApiMethod(BotApiMethod<? extends Serializable> method) {
