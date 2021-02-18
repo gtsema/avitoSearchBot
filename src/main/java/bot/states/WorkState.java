@@ -18,7 +18,7 @@ public class WorkState extends State {
     @Override
     public void handleCallback(CallbackQuery callback) {
         if(callback.getData().equals("stop")) {
-            sendMessage(Messages.whatToDo, getChangeButtons());
+            sendMessage(String.format(Messages.whatToDo, bot.getUser().getName()), getChangeButtons());
             bot.setState(new ChangeState(bot));
         } else {
             sendMessage(Messages.stop, getStopButtons());

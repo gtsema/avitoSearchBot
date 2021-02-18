@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 public abstract class State {
 
+    static int prevMessageId;
     Bot bot;
 
     public State(Bot bot) {
@@ -31,8 +32,10 @@ public abstract class State {
         if(update.hasMessage() && !update.getMessage().getText().isEmpty()) {
             handleMessage(update.getMessage());
         } else if(update.hasCallbackQuery()) {
-            deleteMarkup(update.getCallbackQuery().getMessage().getMessageId());
-            handleCallback(update.getCallbackQuery());
+            if(update.getCallbackQuery().getMessage().getMessageId() == prevMessageId) {
+                deleteMarkup(update.getCallbackQuery().getMessage().getMessageId());
+                handleCallback(update.getCallbackQuery());
+            }
         }
     }
 
@@ -68,7 +71,11 @@ public abstract class State {
 
     private void executeApiMethod(BotApiMethod<? extends Serializable> method) {
         try {
-            bot.execute(method);
+            if(method.getMethod().equals("sendmessage") && ((SendMessage)method).getReplyMarkup() != null) {
+                prevMessageId = bot.execute((SendMessage)method).getMessageId();
+            } else {
+                bot.execute(method);
+            }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
