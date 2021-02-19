@@ -18,7 +18,7 @@ public class Parser {
 
     private static final Logger logger = LoggerFactory.getLogger(Parser.class);
 
-    private String globalPath = "http://www.avito.ru";
+    private final String globalPath = "http://www.avito.ru";
 
     public Set<Advert> parse(String path) throws ParserException {
         Set<Advert> adverts = new HashSet<>();
