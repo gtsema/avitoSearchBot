@@ -31,11 +31,9 @@ public abstract class State {
     public void handleUpdate(Update update) {
         if(update.hasMessage() && !update.getMessage().getText().isEmpty()) {
             handleMessage(update.getMessage());
-        } else if(update.hasCallbackQuery()) {
-            if(update.getCallbackQuery().getMessage().getMessageId() == prevMessageId) {
-                deleteMarkup(update.getCallbackQuery().getMessage().getMessageId());
-                handleCallback(update.getCallbackQuery());
-            }
+        } else if(update.hasCallbackQuery() && update.getCallbackQuery().getMessage().getMessageId() == prevMessageId) {
+            deleteMarkup(update.getCallbackQuery().getMessage().getMessageId());
+            handleCallback(update.getCallbackQuery());
         }
     }
 

@@ -20,11 +20,12 @@ public class PathState extends State {
     public void handleMessage(Message message) {
         int tryCounter = bot.getUser().getTryCounter();
 
-        if(tryCounter == 0) {
+        if(!PathChecker.isValidPath(message.getText()) && tryCounter != 0) {
+            sendMessage(Messages.pathError + Messages.getAttempt(tryCounter));
+        } else if(!PathChecker.isValidPath(message.getText()) && tryCounter == 0) {
+            bot.getUser().resetTryCounter();
             sendMessage(Messages.totalFailure);
             bot.setState(new HelloState(bot));
-        } else if(!PathChecker.isValidPath(message.getText())) {
-            sendMessage(Messages.pathError + Messages.getAttempt(tryCounter));
         } else {
             bot.getUser().resetTryCounter();
             sendMessage(Messages.pathOk);

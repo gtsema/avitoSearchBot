@@ -5,8 +5,9 @@ import java.util.Objects;
 
 public class User {
 
-    private int tryCounter = 3;
-    private long chatId;
+    private int tryCounter = 2;
+
+    final private long chatId;
     private String name;
     private String path;
     private int notificationTime;
@@ -53,11 +54,11 @@ public class User {
     }
 
     public int getTryCounter() {
-        return (tryCounter != 0) ? --tryCounter : (tryCounter = 3);
+        return tryCounter--;
     }
 
     public void resetTryCounter() {
-        tryCounter = 3;
+        tryCounter = 2;
     }
 
     @Override

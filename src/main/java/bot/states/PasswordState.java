@@ -20,14 +20,14 @@ public class PasswordState extends State {
 
     @Override
     public void handleMessage(Message message) {
-
         int tryCounter = bot.getUser().getTryCounter();
 
-        if(tryCounter == 0) {
+        if(!checkPwd(bot.getUser(), message.getText()) && tryCounter != 0) {
+            sendMessage(Messages.pwdError + Messages.getAttempt(tryCounter));
+        } else if(!checkPwd(bot.getUser(), message.getText()) && tryCounter == 0) {
+            bot.getUser().resetTryCounter();
             sendMessage(Messages.totalFailure);
             bot.setState(new HelloState(bot));
-        } else if(!checkPwd(bot.getUser(), message.getText())) {
-            sendMessage(Messages.pwdError + Messages.getAttempt(tryCounter));
         } else {
             bot.getUser().resetTryCounter();
             sendMessage(Messages.pwdOk);
